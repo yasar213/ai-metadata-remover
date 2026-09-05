@@ -4,141 +4,150 @@ from PIL.ExifTags import TAGS
 import json
 import io
 
-# 1. Page Configuration
-st.set_page_config(page_title="AI Image Scanner", page_icon="🧿", layout="wide")
+# 1. Page Configuration (Centered Layout like the image)
+st.set_page_config(page_title="AI Metadata Cleaner", layout="centered", initial_sidebar_state="collapsed")
 
-# 2. Custom CSS for Modern UI
+# 2. Custom CSS to mimic the uploaded image's UI
 st.markdown("""
-    <style>
-    /* Background and general text */
+<style>
+    /* Main background color - elegant beige */
     .stApp {
-        background-color: #f4f6f9;
+        background-color: #F8F7F2;
     }
+    
+    /* Hide default Streamlit header and footer for a clean look */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    
+    /* Import elegant fonts (Serif for headings, Sans-serif for text) */
+    @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;600&display=swap');
+    
     h1 {
-        color: #1E3A8A;
+        font-family: 'Lora', serif;
+        color: #1A1A1A;
         text-align: center;
-        font-family: 'Helvetica Neue', sans-serif;
-        font-weight: 800;
+        font-size: 3.2rem !important;
+        margin-bottom: 0px !important;
+        padding-bottom: 10px !important;
     }
+    
     .subtitle {
+        font-family: 'Inter', sans-serif;
         text-align: center;
-        color: #64748B;
-        font-size: 18px;
-        margin-bottom: 30px;
+        color: #4A4A4A;
+        font-size: 1.1rem;
+        margin-top: 5px;
+        margin-bottom: 40px;
+        line-height: 1.6;
     }
-    /* Stylish Upload Box */
-    .stFileUploader {
-        background-color: white;
-        padding: 20px;
-        border-radius: 15px;
-        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.05);
-    }
-    /* Modern Buttons */
+    
+    /* The orange process button */
     .stDownloadButton>button {
-        background-color: #2563EB;
+        background-color: #E24A29;
         color: white;
-        border-radius: 8px;
+        font-family: 'Inter', sans-serif;
+        font-weight: 600;
+        border-radius: 6px;
         border: none;
-        padding: 10px 24px;
+        padding: 15px 30px;
         width: 100%;
-        font-weight: bold;
-        transition: 0.3s;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
     }
     .stDownloadButton>button:hover {
-        background-color: #1D4ED8;
-        box-shadow: 0px 4px 10px rgba(37, 99, 235, 0.3);
+        background-color: #C83D1F;
         color: white;
+        box-shadow: 0px 4px 12px rgba(226, 74, 41, 0.3);
     }
-    /* Cards for Results */
-    div[data-testid="stExpander"] {
-        background-color: white;
-        border-radius: 10px;
-        border: 1px solid #E2E8F0;
-        box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.02);
+    
+    /* File uploader styling */
+    [data-testid="stFileUploadDropzone"] {
+        background-color: #F4F2E9;
+        border: 1px dashed #BDBDBD;
+        border-radius: 8px;
+        padding: 40px;
     }
-    </style>
+    
+    /* Top Navbar fake UI */
+    .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 0px;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.9rem;
+        border-bottom: 1px solid #EAE8DF;
+        margin-bottom: 50px;
+    }
+    .nav-links span {
+        margin: 0 15px;
+        color: #555;
+        cursor: pointer;
+        text-transform: uppercase;
+        font-weight: 600;
+        letter-spacing: 1px;
+        font-size: 0.8rem;
+    }
+</style>
 """, unsafe_allow_html=True)
 
-# 3. Header Section
-st.markdown("<h1>🧿 AI Image Metadata Scanner</h1>", unsafe_allow_html=True)
-st.markdown("<div class='subtitle'>Detect hidden AI footprints & strip metadata instantly for 100% clean images.</div>", unsafe_allow_html=True)
+# 3. Fake Navbar (Visual Only)
+st.markdown("""
+<div class="navbar">
+    <div style="font-family: 'Lora', serif; font-size: 1.5rem; font-weight: bold; color: #E24A29;">
+        A <span style="color: #333; font-style: italic;">AI Metadata Cleaner</span>
+    </div>
+    <div class="nav-links">
+        <span>Blog</span>
+        <span>Pricing</span>
+        <span>Disclaimer</span>
+        <span>Other Tools ⌄</span>
+    </div>
+    <div>
+        <span style="margin-right: 20px; font-weight: bold; cursor: pointer; color: #333;">➔ Sign In</span>
+        <button style="background-color: #E24A29; color: white; border: none; padding: 10px 24px; border-radius: 4px; font-weight: bold; cursor: pointer;">Register</button>
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
-st.markdown("---")
+# 4. Header Section
+st.markdown("<h1>Free Metadata Cleaner & AI Tag Remover</h1>", unsafe_allow_html=True)
+st.markdown("""
+<p class='subtitle'>
+Online metadata cleaner and remover that strips EXIF, GPS, C2PA, and AI generation tags<br>
+from your images, and removes Stable Diffusion parameters — to protect your privacy before<br>
+you share, all in your browser.
+</p>
+""", unsafe_allow_html=True)
 
-# 4. App Logic
-uploaded_file = st.file_uploader("Drop your image here (PNG, JPG, JPEG, WEBP)", type=["png", "jpg", "jpeg", "webp"])
+# 5. Main Content Area (Centered)
+col1, col2, col3 = st.columns([1, 5, 1])
 
-if uploaded_file is not None:
-    file_bytes = uploaded_file.getvalue()
-    image = Image.open(uploaded_file)
-    img_format = image.format if image.format else "PNG"
+with col2:
+    uploaded_file = st.file_uploader("Drop image here (.JPG, .PNG, .WEBP - UP TO 10MB)", type=["png", "jpg", "jpeg", "webp"], label_visibility="collapsed")
     
-    col1, padding, col2 = st.columns([1.2, 0.1, 1])
+    st.markdown("<p style='text-align: center; color: #E24A29; font-size: 0.85rem; margin-top: 10px; font-weight: bold;'>1/3 IMAGES TODAY <br> <span style='font-weight: normal; color: #777;'>2 REMAINING</span></p>", unsafe_allow_html=True)
     
-    with col1:
-        st.image(image, caption="Uploaded Image", use_container_width=True)
+    if uploaded_file is not None:
+        image = Image.open(uploaded_file)
+        img_format = image.format if image.format else "PNG"
         
-        st.markdown("<br>", unsafe_allow_html=True)
-        st.info("💡 **Tip:** Download the cleaned image below to remove all traces of AI generation and camera data.")
+        # Display the uploaded image thumbnail
+        st.image(image, caption=uploaded_file.name, width=250)
         
+        # Processing Logic (Cleaning metadata)
         clean_image = Image.new(image.mode, image.size)
         clean_image.putdata(list(image.getdata()))
         img_byte_arr = io.BytesIO()
         clean_image.save(img_byte_arr, format=img_format)
         
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        # The Orange Process Button
         st.download_button(
-            label="⬇️ Download Cleaned Image",
+            label="⚡ Process & Download Image",
             data=img_byte_arr.getvalue(),
-            file_name=f"cleaned_image.{img_format.lower()}",
+            file_name=f"cleaned_{uploaded_file.name}",
             mime=f"image/{img_format.lower()}"
         )
-    
-    with col2:
-        st.subheader("📊 Scan Results")
-        metadata = {}
-
-        if image.info:
-            metadata['Basic_Info'] = {}
-            for key, value in image.info.items():
-                if key not in ['icc_profile', 'exif']: 
-                    metadata['Basic_Info'][key] = str(value)
-
-        exif_data = image.getexif()
-        if exif_data:
-            metadata['EXIF_Data'] = {}
-            for tag_id, value in exif_data.items():
-                tag = TAGS.get(tag_id, tag_id)
-                metadata['EXIF_Data'][tag] = str(value)
-
-        ai_traces = []
-        if b'c2pa' in file_bytes or b'jumbf' in file_bytes:
-            ai_traces.append("C2PA Content Credentials")
-        if b'DALL-E' in file_bytes or b'dall-e' in file_bytes.lower():
-            ai_traces.append("DALL-E Signature")
-        if b'Midjourney' in file_bytes or b'midjourney' in file_bytes.lower():
-            ai_traces.append("Midjourney Signature")
-        if b'ComfyUI' in file_bytes or b'comfyui' in file_bytes.lower():
-            ai_traces.append("ComfyUI Signature")
-        if b'prompt' in file_bytes.lower():
-             ai_traces.append("Hidden Prompt Data")
-
-        metadata_str = json.dumps(metadata).lower()
-        basic_keywords = ["prompt", "negative prompt", "steps:", "sampler:", "cfg scale", "midjourney", "stable diffusion", "comfyui", "dall-e", "c2pa"]
-        found_keywords = [kw for kw in basic_keywords if kw in metadata_str]
-
-        # Display Alert Boxes based on results
-        if ai_traces or found_keywords:
-            st.error("⚠️ **AI Traces Detected!**")
-            if found_keywords:
-                st.write(f"**Keywords:** {', '.join(found_keywords).title()}")
-            if ai_traces:
-                st.write(f"**Deep Scan Signatures:** {', '.join(ai_traces)}")
-        else:
-            st.success("✅ **100% Clean!** No AI footprints or hidden metadata found.")
-
-        # Expandable Data View for clean UI
-        with st.expander("🔍 View Raw Metadata"):
-            if metadata:
-                st.json(metadata)
-            else:
-                st.write("No raw metadata available.")
